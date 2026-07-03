@@ -220,8 +220,13 @@ METINLER = {
         "kayit_hata": "Kayıt işlemi sırasında bir sorun oluştu: {hata}",
         "kayit_bulut_bilgi": "Kayıtlar sunucuda saklanmaz: analizinizi JSON dosyası olarak "
                              "bilgisayarınıza indirin, daha sonra aynı dosyayı yükleyerek geri açın.",
-        "kayit_indir_btn": "Kaydı indir (JSON)",
+        "kayit_indir_btn": "⬇️ Kaydı indir (JSON)",
         "kayit_yukle_label": "Kayıt dosyası yükle (JSON)",
+
+        # CSV dışa aktarma
+        "csv_indir": "⬇️ Tabloyu CSV olarak indir (Excel uyumlu)",
+        "csv_giris_dosya": "veri_girisi.csv",
+        "csv_kiyaslama_dosya": "kiyaslama_tablosu.csv",
 
         # PDF raporu
         "rapor_baslik": "7. Rapor",
@@ -248,6 +253,10 @@ METINLER = {
                 Analiz yöntemleri IPMVP ve ASHRAE Guideline 14 ilkeleri esas alınarak hazırlanmıştır.
             </div>
         """,
+        "yasal_uyari": "© 2026 ATLASCert®. Bu yazılım, sektör profesyonellerine yardımcı olmak "
+                       "amacıyla geliştirilmiş ve erişime sunulmuştur. Yazılımın izinsiz klonlanması, "
+                       "farklı markalar altında sunulması veya başka kurum platformlarında yayınlanması "
+                       "kesinlikle yasaktır. Tüm fikri mülkiyet hakları saklıdır.",
     },
 
     "en": {
@@ -466,8 +475,13 @@ METINLER = {
         "kayit_hata": "A problem occurred during the record operation: {hata}",
         "kayit_bulut_bilgi": "Records are not stored on the server: download your analysis as a "
                              "JSON file and re-open it later by uploading the same file.",
-        "kayit_indir_btn": "Download record (JSON)",
+        "kayit_indir_btn": "⬇️ Download record (JSON)",
         "kayit_yukle_label": "Upload record file (JSON)",
+
+        # CSV export
+        "csv_indir": "⬇️ Download table as CSV (Excel-friendly)",
+        "csv_giris_dosya": "input_data.csv",
+        "csv_kiyaslama_dosya": "comparison_table.csv",
 
         # PDF report
         "rapor_baslik": "7. Report",
@@ -494,6 +508,10 @@ METINLER = {
                 Analysis methods are based on the principles of IPMVP and ASHRAE Guideline 14.
             </div>
         """,
+        "yasal_uyari": "© 2026 ATLASCert®. This software has been developed and made available to "
+                       "assist industry professionals. Unauthorized cloning of the software, offering "
+                       "it under different brands, or publishing it on other corporate platforms is "
+                       "strictly prohibited. All intellectual property rights reserved.",
     },
 }
 

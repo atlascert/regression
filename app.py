@@ -317,69 +317,88 @@ def kayit_verisi_olustur(ad):
     return guvenli_ad, json.dumps(kayit, ensure_ascii=False, indent=1)
 
 
-with st.expander(M["kayitlar_expander"], expanded=False):
-    if BULUT_MODU:
-        st.caption(M["kayit_bulut_bilgi"])
-    kayit_col1, kayit_col2 = st.columns(2)
-    with kayit_col1:
-        kayit_adi = st.text_input(M["kayit_adi_label"], key="kayit_adi")
+def kayitlar_paneli(konum):
+    """
+    Kaydet / Aç panelini çizer. Panel hem sayfanın başında hem sonunda yer
+    aldığı için tüm bileşen anahtarları 'konum' ile ayrıştırılır.
+
+    Bulutta kayıt iki aşamalıdır: önce Kaydet'e basılır (o anki tüm veriden
+    JSON üretilip oturum durumuna konur), ardından beliren düğmeyle indirilir.
+    JSON'un indirme düğmesi çizilirken değil, Kaydet tıklandığında üretilmesi
+    önemlidir: indirme düğmesi tıklandığında betik yeniden çalışmaz, son
+    hazırlanan yükü verir — yük panelde (veri tabloları depoya yazılmadan
+    önce) üretilseydi eksik/boş kayıt inerdi.
+    """
+    with st.expander(M["kayitlar_expander"], expanded=False):
         if BULUT_MODU:
-            # Bulutta kayıt sunucuya yazılmaz; JSON dosyası olarak indirilir.
-            guvenli_ad, kayit_json = kayit_verisi_olustur(kayit_adi)
-            st.download_button(
-                M["kayit_indir_btn"],
-                data=kayit_json.encode("utf-8"),
-                file_name=f"{guvenli_ad}.json",
-                mime="application/json",
-                disabled=not kayit_adi.strip(),
-                help=M["kayit_adi_bos"] if not kayit_adi.strip() else None,
-                key="kayit_indir_dugmesi",
-            )
-        elif st.button(M["kaydet_btn"], key="kaydet_dugmesi"):
-            if not kayit_adi.strip():
-                st.warning(M["kayit_adi_bos"])
-            else:
-                try:
-                    yazilan_ad, kayit_json = kayit_verisi_olustur(kayit_adi)
-                    (KAYIT_KLASORU / f"{yazilan_ad}.json").write_text(
-                        kayit_json, encoding="utf-8"
-                    )
-                    st.success(M["kayit_ok"].format(ad=yazilan_ad))
-                except Exception as e:
-                    st.error(M["kayit_hata"].format(hata=e))
-    with kayit_col2:
-        if BULUT_MODU:
-            yuklenen_kayit = st.file_uploader(
-                M["kayit_yukle_label"], type=["json"], key="kayit_dosyasi"
-            )
-            if yuklenen_kayit is not None:
-                # Aynı dosya her çalıştırmada yeniden yüklenmesin diye imzalanır.
-                imza = (yuklenen_kayit.name, yuklenen_kayit.size)
-                if st.session_state.get("_islenen_kayit_imzasi") != imza:
-                    st.session_state["_islenen_kayit_imzasi"] = imza
-                    st.session_state["_bekleyen_kayit_metni"] = {
-                        "ad": Path(yuklenen_kayit.name).stem,
-                        "icerik": yuklenen_kayit.getvalue().decode("utf-8"),
-                    }
-                    st.rerun()
-        else:
-            kayit_dosyalari = sorted(
-                KAYIT_KLASORU.glob("*.json"), key=lambda p: p.stat().st_mtime, reverse=True
-            )
-            if not kayit_dosyalari:
-                st.caption(M["kayit_yok"])
-            else:
-                secilen_kayit = st.selectbox(
-                    M["kayit_sec_label"],
-                    options=kayit_dosyalari,
-                    format_func=lambda p: p.stem,
-                    key="kayit_secimi",
+            st.caption(M["kayit_bulut_bilgi"])
+        kayit_col1, kayit_col2 = st.columns(2)
+        with kayit_col1:
+            kayit_adi = st.text_input(M["kayit_adi_label"], key=f"kayit_adi_{konum}")
+            if st.button(M["kaydet_btn"], key=f"kaydet_dugmesi_{konum}"):
+                if not kayit_adi.strip():
+                    st.warning(M["kayit_adi_bos"])
+                else:
+                    try:
+                        yazilan_ad, kayit_json = kayit_verisi_olustur(kayit_adi)
+                        if BULUT_MODU:
+                            st.session_state["_kayit_json"] = kayit_json.encode("utf-8")
+                            st.session_state["_kayit_json_adi"] = yazilan_ad
+                        else:
+                            (KAYIT_KLASORU / f"{yazilan_ad}.json").write_text(
+                                kayit_json, encoding="utf-8"
+                            )
+                        st.success(M["kayit_ok"].format(ad=yazilan_ad))
+                    except Exception as e:
+                        st.error(M["kayit_hata"].format(hata=e))
+            if BULUT_MODU and st.session_state.get("_kayit_json"):
+                st.download_button(
+                    M["kayit_indir_btn"],
+                    data=st.session_state["_kayit_json"],
+                    file_name=f"{st.session_state['_kayit_json_adi']}.json",
+                    mime="application/json",
+                    key=f"kayit_indir_dugmesi_{konum}",
                 )
-                if st.button(M["ac_btn"], key="ac_dugmesi"):
-                    # Yükleme bir sonraki çalıştırmanın başında, bileşenler
-                    # çizilmeden önce yapılır (bkz. _bekleyen_kayit işleme bloğu).
-                    st.session_state["_bekleyen_kayit"] = str(secilen_kayit)
-                    st.rerun()
+        with kayit_col2:
+            if BULUT_MODU:
+                yuklenen_kayit = st.file_uploader(
+                    M["kayit_yukle_label"], type=["json"], key=f"kayit_dosyasi_{konum}"
+                )
+                if yuklenen_kayit is not None:
+                    # Aynı dosya her çalıştırmada yeniden yüklenmesin diye imzalanır;
+                    # file_id her yükleme işleminde değişir, böylece aynı dosyanın
+                    # yeniden yüklenmesi de kaydı tekrar açar.
+                    imza = getattr(yuklenen_kayit, "file_id", None) or (
+                        yuklenen_kayit.name, yuklenen_kayit.size
+                    )
+                    if st.session_state.get("_islenen_kayit_imzasi") != imza:
+                        st.session_state["_islenen_kayit_imzasi"] = imza
+                        st.session_state["_bekleyen_kayit_metni"] = {
+                            "ad": Path(yuklenen_kayit.name).stem,
+                            "icerik": yuklenen_kayit.getvalue().decode("utf-8"),
+                        }
+                        st.rerun()
+            else:
+                kayit_dosyalari = sorted(
+                    KAYIT_KLASORU.glob("*.json"), key=lambda p: p.stat().st_mtime, reverse=True
+                )
+                if not kayit_dosyalari:
+                    st.caption(M["kayit_yok"])
+                else:
+                    secilen_kayit = st.selectbox(
+                        M["kayit_sec_label"],
+                        options=kayit_dosyalari,
+                        format_func=lambda p: p.stem,
+                        key=f"kayit_secimi_{konum}",
+                    )
+                    if st.button(M["ac_btn"], key=f"ac_dugmesi_{konum}"):
+                        # Yükleme bir sonraki çalıştırmanın başında, bileşenler
+                        # çizilmeden önce yapılır (bkz. _bekleyen_kayit işleme bloğu).
+                        st.session_state["_bekleyen_kayit"] = str(secilen_kayit)
+                        st.rerun()
+
+
+kayitlar_paneli("ust")
 
 if "_kayit_yuklendi" in st.session_state:
     st.success(M["kayit_yuklendi"].format(ad=st.session_state.pop("_kayit_yuklendi")))
@@ -405,6 +424,22 @@ def baski_tablosu(tablo_df, baslik=None):
         + tablo_df.to_html(index=False, border=0, float_format=lambda v: f"{v:,.2f}")
         + "</div>",
         unsafe_allow_html=True,
+    )
+
+
+def csv_indirme_dugmesi(tablo_df, dosya_adi, anahtar):
+    """
+    Tabloyu Türkçe Excel'in doğrudan sütunlara ayırdığı biçimde (';' ayraçlı,
+    ',' ondalıklı, UTF-8 BOM'lu) CSV olarak indiren düğme. Streamlit'in yerleşik
+    tablo dışa aktarımı virgül ayraçlı olduğundan Türkçe Excel'de tek sütuna
+    yığılır; bu düğme onun yerine kullanılır.
+    """
+    st.download_button(
+        M["csv_indir"],
+        data=tablo_df.to_csv(index=False, sep=";", decimal=",").encode("utf-8-sig"),
+        file_name=dosya_adi,
+        mime="text/csv",
+        key=anahtar,
     )
 
 
@@ -651,6 +686,7 @@ if temiz_df_tum.empty:
     st.stop()
 
 baski_tablosu(temiz_df_tum)
+csv_indirme_dugmesi(temiz_df_tum, M["csv_giris_dosya"], "csv_giris_dugmesi")
 
 
 def donem_etiketleri_uret(alt_df, baslangic=1):
@@ -967,6 +1003,7 @@ st.dataframe(
     height=izgara_yuksekligi(len(kiyaslama_tablosu)),
 )
 baski_tablosu(kiyaslama_tablosu, baslik=M["kiyaslama_baslik"])
+csv_indirme_dugmesi(kiyaslama_tablosu, M["csv_kiyaslama_dosya"], "csv_kiyaslama_dugmesi")
 
 ozet_col1, ozet_col2, ozet_col3, ozet_col4 = st.columns(4)
 ozet_col1.metric(M["toplam_tasarruf"], f"{ozet['toplam_tasarruf']:,.2f}")
@@ -1073,7 +1110,21 @@ if st.session_state.get("pdf_rapor"):
     )
 
 # ---------------------------------------------------------------------------
-# Alt Bilgi (Footer)
+# Sayfa sonu kayıt paneli: analiz tamamlandığında kullanıcı sayfanın altındadır;
+# kaydetmek için başa dönmesi gerekmesin diye panel burada yinelenir.
+# ---------------------------------------------------------------------------
+st.divider()
+kayitlar_paneli("alt")
+
+# ---------------------------------------------------------------------------
+# Alt Bilgi (Footer) ve yasal uyarı
 # ---------------------------------------------------------------------------
 st.divider()
 st.markdown(M["footer_html"], unsafe_allow_html=True)
+st.markdown(
+    '<div style="text-align:center; color:#898781; font-size:0.78rem; '
+    'line-height:1.6; padding:0 2rem 1.5rem 2rem;">'
+    + M["yasal_uyari"]
+    + "</div>",
+    unsafe_allow_html=True,
+)

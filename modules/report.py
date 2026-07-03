@@ -17,7 +17,8 @@ from reportlab.lib.units import cm
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.platypus import (
-    Image, KeepTogether, Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle,
+    Image, KeepTogether, PageBreak, Paragraph, SimpleDocTemplate, Spacer, Table,
+    TableStyle,
 )
 
 # Kurumsal renkler
@@ -187,19 +188,37 @@ def build_pdf(m, veri_df, kriterler_df, katsayilar_df, formul, model_sonucu,
     icerik.append(_tablo(ozet_df, genislik))
     icerik.append(Spacer(1, 12))
 
-    # 5. Grafikler (her biri başlığı grafiğin içinde; sayfada ortalanır)
-    icerik.append(Paragraph(m["b6"].split(". ", 1)[-1], bolum))
+    # 5. Grafikler (her biri başlığı grafiğin içinde; sayfada ortalanır).
+    # "Grafikler" başlığı ilk grafikle aynı blokta tutulur ki başlık önceki
+    # sayfada tek başına kalmasın; son grafik (yıllık tasarruf dağılımı)
+    # sayfa kesmesiyle son sayfada tek başına yer alır.
+    gorseller = []
     for png in grafik_pngler:
         gorsel = Image(BytesIO(png))
         oran = gorsel.imageHeight / gorsel.imageWidth
         gorsel.drawWidth = genislik
         gorsel.drawHeight = genislik * oran
         gorsel.hAlign = "CENTER"
-        icerik.append(KeepTogether([gorsel, Spacer(1, 10)]))
+        gorseller.append(gorsel)
 
-    # Alt bilgi
+    if gorseller:
+        icerik.append(KeepTogether([
+            Paragraph(m["b6"].split(". ", 1)[-1], bolum),
+            gorseller[0],
+            Spacer(1, 10),
+        ]))
+        for gorsel in gorseller[1:-1]:
+            icerik.append(KeepTogether([gorsel, Spacer(1, 10)]))
+        if len(gorseller) > 1:
+            icerik.append(PageBreak())
+            icerik.append(KeepTogether([gorseller[-1], Spacer(1, 10)]))
+
+    # Alt bilgi ve yasal uyarı
     icerik.append(Spacer(1, 14))
     icerik.append(Paragraph(m["footer_metin"], footer))
+    if m.get("yasal_uyari"):
+        icerik.append(Spacer(1, 4))
+        icerik.append(Paragraph(m["yasal_uyari"], footer))
 
     dokuman.build(icerik)
     return tampon.getvalue()
