@@ -182,7 +182,7 @@ components.html(
 # değiştirdiği için mutlaka hiçbir bileşen çizilmeden ÖNCE (burada) işlenmelidir.
 # ---------------------------------------------------------------------------
 BULUT_MODU = Path("/mount/src").exists()  # Streamlit Community Cloud imzası
-SURUM = "1.1.1"
+SURUM = "1.1.2"
 
 KAYIT_KLASORU = Path(__file__).parent / "kayitlar"
 if not BULUT_MODU:
@@ -1085,10 +1085,21 @@ if st.button(M["rapor_olustur"], key="rapor_olustur_dugmesi"):
 
             # PDF oluşturma (hata olsa da HTML devam etsin)
             try:
-                grafik_pngler = [
-                    fig.to_image(format="png", width=1100, height=520, scale=2)
-                    for fig in rapor_figleri
-                ]
+                try:
+                    grafik_pngler = [
+                        fig.to_image(format="png", width=1100, height=520, scale=2)
+                        for fig in rapor_figleri
+                    ]
+                except Exception:
+                    # Bulutta sistem Chromium'u kaleido tarafından başlatılamayabiliyor;
+                    # kaleido'nun kendi uyumlu Chrome'u indirilip bir kez daha denenir
+                    # (indirme kalıcıdır, sunucu yeniden başlayana dek tekrarlanmaz).
+                    import kaleido
+                    kaleido.get_chrome_sync()
+                    grafik_pngler = [
+                        fig.to_image(format="png", width=1100, height=520, scale=2)
+                        for fig in rapor_figleri
+                    ]
                 st.session_state["pdf_rapor"] = report.build_pdf(
                     M,
                     temiz_df_tum,

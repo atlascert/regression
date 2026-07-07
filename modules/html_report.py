@@ -8,8 +8,7 @@ kütüphanesi HTML'e gömülüdür.
 """
 
 import base64
-from io import BytesIO
-import numpy as np
+
 import pandas as pd
 import plotly.io as pio
 
@@ -42,8 +41,10 @@ def build_html(m, veri_df, kriterler_df, katsayilar_df, formul, model_sonucu,
     """
     gecerlilik_baslik = gecerlilik_baslik or m.get("rapor_gecerlilik", "Statistical Validity")
 
-    # Plotly JS (bir kez), tüm grafikler için
-    plotlyjs = pio.get_plotlyjs(mode="inline")
+    # Plotly JS (bir kez), tüm grafikler için — get_plotlyjs ham JS döndürür,
+    # <script> etiketiyle sarılarak sayfaya gömülür (CDN'e istek atılmaz).
+    from plotly.offline import get_plotlyjs
+    plotlyjs = "<script>" + get_plotlyjs() + "</script>"
 
     # Logo data-URI'ye
     logo_b64 = base64.b64encode(logo_svg_metni.encode("utf-8")).decode("utf-8")

@@ -70,7 +70,52 @@ Tüm versiyonlar arasındaki önemli değişiklikler bu dosyada belirtilir.
 - ✅ PDF rapor önceki davranışla birebir aynı
 - ✅ Dil değiştirme (Türkçe/İngilizce) tüm bölümlerde çalışıyor
 
+---
+
+## v1.1.1 — Bug Fix: Rapor Oluşturma Hata Yönetimi
+
+**Tarih:** 2026-07-07 (akşam)  
+**Durum:** PDF hatası HTML raporunu bloke etme sorunu düzeltildi
+
+### Düzeltmeler
+- ✅ **PDF ve HTML rapor oluşturma artık bağımsız** — PDF hatası HTML'i silmiyor
+- ✅ Her rapor türü kendi hata mesajını gösteriyor (warning)
+- ✅ Biri başarısız olsa diğeri yine kullanıcıya sunuluyor
+- ✅ Error handling granüler hale getirildi
+
+### Teknik Değişiklikler
+- `app.py`: PDF ve HTML oluşturma separate `try/except` bloklara taşındı
+  - PDF başarısız → warning gösterir, HTML devam eder
+  - HTML başarısız → warning gösterir, PDF devam eder
+  - Her ikisi de başarısız olsa, bilgilendirici mesaj verilir
+
+### Doğrulama Edildi
+- ✅ HTML rapor düğmesi şimdi PDF hatası olsa bile gösteriliyor
+- ✅ Kullanıcı en azından bir rapor formatını indirilebiliyor
+
+---
+
+## v1.1.2 — Bug Fix: HTML Plotly JS + PDF Chrome Onarımı
+
+**Tarih:** 2026-07-07 (gece)  
+**Durum:** Buluttaki her iki rapor hatası giderildi
+
+### Düzeltmeler
+- ✅ **HTML raporu:** `plotly.io.get_plotlyjs` hatası düzeltildi — Plotly JS artık
+  `plotly.offline.get_plotlyjs()` ile alınıp `<script>` etiketiyle gömülüyor
+- ✅ **PDF raporu:** Streamlit Cloud'da sistem Chromium'u başlatılamadığında,
+  kaleido'nun kendi uyumlu Chrome'u otomatik indirilip (`kaleido.get_chrome_sync()`)
+  PNG üretimi bir kez daha deneniyor (kendi kendini onaran mekanizma)
+
+### Teknik Değişiklikler
+- `modules/html_report.py`: Plotly JS gömme yöntemi düzeltildi, kullanılmayan
+  importlar temizlendi
+- `app.py`: PNG üretimi başarısız olursa Chrome indirme + yeniden deneme eklendi
+
+---
+
 ### Sonraki Adımlar (v1.2.0+)
+- Opsiyonel: Kaleido versiyonunu sabitleme (PDF Streamlit Cloud uyumluluğu)
 - Opsiyonel: Grafikler statik PNG resimler olarak da HTML'ye eklenebilir
   (dosya boyutu küçük ama interaktivite kaybı)
 - Opsiyonel: Kalkulo geçmişi ("Previous Analyses") bölümü
