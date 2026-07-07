@@ -182,7 +182,7 @@ components.html(
 # değiştirdiği için mutlaka hiçbir bileşen çizilmeden ÖNCE (burada) işlenmelidir.
 # ---------------------------------------------------------------------------
 BULUT_MODU = Path("/mount/src").exists()  # Streamlit Community Cloud imzası
-SURUM = "1.1.0"
+SURUM = "1.1.1"
 
 KAYIT_KLASORU = Path(__file__).parent / "kayitlar"
 if not BULUT_MODU:
