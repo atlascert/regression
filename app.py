@@ -18,7 +18,7 @@ import pandas as pd
 import streamlit as st
 import streamlit.components.v1 as components
 
-from modules import charts, comparison, data_handler, i18n, regression, report
+from modules import charts, comparison, data_handler, html_report, i18n, regression, report
 
 st.set_page_config(
     page_title="ATLASCert® EnB Portalı",
@@ -182,6 +182,7 @@ components.html(
 # değiştirdiği için mutlaka hiçbir bileşen çizilmeden ÖNCE (burada) işlenmelidir.
 # ---------------------------------------------------------------------------
 BULUT_MODU = Path("/mount/src").exists()  # Streamlit Community Cloud imzası
+SURUM = "1.1.0"
 
 KAYIT_KLASORU = Path(__file__).parent / "kayitlar"
 if not BULUT_MODU:
@@ -261,6 +262,8 @@ with logo_col:
 with baslik_col:
     st.title(M["portal_basligi"])
 st.caption(M["alt_baslik"])
+
+st.info(M["uyku_uyari"])
 
 st.divider()
 
@@ -1096,18 +1099,46 @@ if st.button(M["rapor_olustur"], key="rapor_olustur_dugmesi"):
                 grafik_pngler,
                 gecerlilik_baslik=(M["ham_ozet_baslik"] if ham_mod else None),
             )
+
+            st.session_state["html_rapor"] = html_report.build_html(
+                M,
+                temiz_df_tum,
+                kriterler_df,
+                katsayilar_df,
+                formul,
+                model_sonucu,
+                kiyaslama_tablosu,
+                ozet,
+                rapor_figleri,
+                logo_svg(),
+                SURUM,
+                gecerlilik_baslik=(M["ham_ozet_baslik"] if ham_mod else None),
+            )
         except Exception as e:
             st.session_state.pop("pdf_rapor", None)
+            st.session_state.pop("html_rapor", None)
             st.error(M["rapor_hata"].format(hata=e))
 
-if st.session_state.get("pdf_rapor"):
-    st.download_button(
-        M["rapor_indir"],
-        data=st.session_state["pdf_rapor"],
-        file_name=M["rapor_dosya_adi"],
-        mime="application/pdf",
-        key="rapor_indir_dugmesi",
-    )
+if st.session_state.get("pdf_rapor") or st.session_state.get("html_rapor"):
+    col_pdf, col_html = st.columns(2)
+    with col_pdf:
+        if st.session_state.get("pdf_rapor"):
+            st.download_button(
+                M["rapor_indir"],
+                data=st.session_state["pdf_rapor"],
+                file_name=M["rapor_dosya_adi"],
+                mime="application/pdf",
+                key="rapor_indir_dugmesi",
+            )
+    with col_html:
+        if st.session_state.get("html_rapor"):
+            st.download_button(
+                M["rapor_indir_html"],
+                data=st.session_state["html_rapor"],
+                file_name=M["rapor_dosya_adi_html"],
+                mime="text/html",
+                key="rapor_indir_html_dugmesi",
+            )
 
 # ---------------------------------------------------------------------------
 # Sayfa sonu kayıt paneli: analiz tamamlandığında kullanıcı sayfanın altındadır;
@@ -1120,7 +1151,7 @@ kayitlar_paneli("alt")
 # Alt Bilgi (Footer) ve yasal uyarı
 # ---------------------------------------------------------------------------
 st.divider()
-st.markdown(M["footer_html"], unsafe_allow_html=True)
+st.markdown(M["footer_html"].format(surum=SURUM), unsafe_allow_html=True)
 st.markdown(
     '<div style="text-align:center; color:#898781; font-size:0.78rem; '
     'line-height:1.6; padding:0 2rem 1.5rem 2rem;">'

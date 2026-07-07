@@ -232,12 +232,15 @@ METINLER = {
         "rapor_baslik": "7. Rapor",
         "rapor_aciklama": "Analizin tamamını (veriler, istatistikler, formül, kıyaslama ve grafikler) "
                           "her kenardan 2,5 cm boşluklu A4 sayfa düzeninde, tarayıcı ayarlarından "
-                          "bağımsız bir PDF dosyası olarak indirebilirsiniz.",
+                          "bağımsız bir PDF dosyası olarak indirebilirsiniz. Ayrıca, sunucu gerektirmeyen, "
+                          "tarayıcıda çevrimdışı açılabilen ve interaktif grafiklere sahip bir HTML rapor da indirebilirsiniz.",
         "rapor_olustur": "📄 PDF raporu oluştur",
         "rapor_indir": "PDF raporunu indir",
+        "rapor_indir_html": "📊 HTML raporunu indir",
         "rapor_hazirlaniyor": "Rapor hazırlanıyor...",
         "rapor_hata": "Rapor oluşturulurken bir sorun oluştu: {hata}",
         "rapor_dosya_adi": "ATLASCert_EnB_Raporu.pdf",
+        "rapor_dosya_adi_html": "ATLASCert_EnB_Raporu.html",
         "rapor_tarih": "Rapor tarihi",
         "rapor_giris_tablosu": "Giriş Verileri",
         "rapor_gecerlilik": "İstatistiksel Geçerlilik Tablosu",
@@ -250,13 +253,19 @@ METINLER = {
                 <span style="color:#104281; font-weight:600;">ATLASCert®</span>
                 — Enerji Temel Çizgisi (EnB) Analiz ve Raporlama Portalı<br>
                 © 2026 ATLASCert®. Tüm hakları saklıdır. ATLASCert® tescilli bir markadır.<br>
-                Analiz yöntemleri IPMVP ve ASHRAE Guideline 14 ilkeleri esas alınarak hazırlanmıştır.
+                Analiz yöntemleri IPMVP ve ASHRAE Guideline 14 ilkeleri esas alınarak hazırlanmıştır.<br>
+                <span style="font-size:0.9em;">Sürüm: v{surum}</span>
             </div>
         """,
         "yasal_uyari": "© 2026 ATLASCert®. Bu yazılım, sektör profesyonellerine yardımcı olmak "
                        "amacıyla geliştirilmiş ve erişime sunulmuştur. Yazılımın izinsiz klonlanması, "
                        "farklı markalar altında sunulması veya başka kurum platformlarında yayınlanması "
                        "kesinlikle yasaktır. Tüm fikri mülkiyet hakları saklıdır.",
+
+        # Uyku bildirimi
+        "uyku_uyari": "⏰ **Önemli:** Bu portal, barındırma hizmeti tarafından uzun süre kullanılmadığında uyku moduna alınır. "
+                      "Sayfayı ilk açtığınızda veya uzun bir aradan sonra 'Yes, get this app back up!' düğmesine basıp yaklaşık 1-3 dakika "
+                      "beklemeniz gerekebilir; bu tek seferlik bir başlatma süresidir. Uygulama bir kez başladığında normal şekilde çalışır.",
     },
 
     "en": {
@@ -487,12 +496,14 @@ METINLER = {
         "rapor_baslik": "7. Report",
         "rapor_aciklama": "You can download the complete analysis (data, statistics, formula, "
                           "comparison and charts) as a PDF file with an A4 page layout and 2.5 cm "
-                          "margins on all sides, independent of browser settings.",
+                          "margins on all sides, independent of browser settings. Additionally, you can also download "
+                          "an interactive HTML report that works offline in your browser without requiring a server.",
         "rapor_olustur": "📄 Generate PDF report",
         "rapor_indir": "Download PDF report",
         "rapor_hazirlaniyor": "Preparing the report...",
         "rapor_hata": "A problem occurred while generating the report: {hata}",
         "rapor_dosya_adi": "ATLASCert_EnB_Report.pdf",
+        "rapor_dosya_adi_html": "ATLASCert_EnB_Report.html",
         "rapor_tarih": "Report date",
         "rapor_giris_tablosu": "Input Data",
         "rapor_gecerlilik": "Statistical Validity Table",
@@ -505,13 +516,21 @@ METINLER = {
                 <span style="color:#104281; font-weight:600;">ATLASCert®</span>
                 — Energy Baseline (EnB) Analysis and Reporting Portal<br>
                 © 2026 ATLASCert®. All rights reserved. ATLASCert® is a registered trademark.<br>
-                Analysis methods are based on the principles of IPMVP and ASHRAE Guideline 14.
+                Analysis methods are based on the principles of IPMVP and ASHRAE Guideline 14.<br>
+                <span style="font-size:0.9em;">Version: v{surum}</span>
             </div>
         """,
         "yasal_uyari": "© 2026 ATLASCert®. This software has been developed and made available to "
                        "assist industry professionals. Unauthorized cloning of the software, offering "
                        "it under different brands, or publishing it on other corporate platforms is "
                        "strictly prohibited. All intellectual property rights reserved.",
+
+        # Sleep notification
+        "uyku_uyari": "⏰ **Important:** This portal may be put to sleep by the hosting service if not used for an extended period. "
+                      "When you first open the page or after a long break, you may need to click 'Yes, get this app back up!' and "
+                      "wait approximately 1-3 minutes; this is a one-time startup delay. Once the app has started, it works normally.",
+
+        "rapor_indir_html": "📊 Download HTML report",
     },
 }
 
