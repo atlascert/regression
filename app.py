@@ -1076,10 +1076,6 @@ if st.button(M["rapor_olustur"], key="rapor_olustur_dugmesi"):
                 ),
                 charts.create_savings_donut_chart(yillik_ozet, koyu=False, m=M),
             ]
-            grafik_pngler = [
-                fig.to_image(format="png", width=1100, height=520, scale=2)
-                for fig in rapor_figleri
-            ]
             if ham_mod:
                 model_sonucu = None
             elif model_uygun_mu:
@@ -1087,36 +1083,49 @@ if st.button(M["rapor_olustur"], key="rapor_olustur_dugmesi"):
             else:
                 model_sonucu = (M["model_uygun_degil"].replace("**", ""), False)
 
-            st.session_state["pdf_rapor"] = report.build_pdf(
-                M,
-                temiz_df_tum,
-                kriterler_df,
-                katsayilar_df,
-                formul,
-                model_sonucu,
-                kiyaslama_tablosu,
-                ozet,
-                grafik_pngler,
-                gecerlilik_baslik=(M["ham_ozet_baslik"] if ham_mod else None),
-            )
+            # PDF oluşturma (hata olsa da HTML devam etsin)
+            try:
+                grafik_pngler = [
+                    fig.to_image(format="png", width=1100, height=520, scale=2)
+                    for fig in rapor_figleri
+                ]
+                st.session_state["pdf_rapor"] = report.build_pdf(
+                    M,
+                    temiz_df_tum,
+                    kriterler_df,
+                    katsayilar_df,
+                    formul,
+                    model_sonucu,
+                    kiyaslama_tablosu,
+                    ozet,
+                    grafik_pngler,
+                    gecerlilik_baslik=(M["ham_ozet_baslik"] if ham_mod else None),
+                )
+            except Exception as e_pdf:
+                st.session_state.pop("pdf_rapor", None)
+                st.warning(f"⚠️ PDF oluşturmada sorun: {str(e_pdf)[:150]}")
 
-            st.session_state["html_rapor"] = html_report.build_html(
-                M,
-                temiz_df_tum,
-                kriterler_df,
-                katsayilar_df,
-                formul,
-                model_sonucu,
-                kiyaslama_tablosu,
-                ozet,
-                rapor_figleri,
-                logo_svg(),
-                SURUM,
-                gecerlilik_baslik=(M["ham_ozet_baslik"] if ham_mod else None),
-            )
+            # HTML oluşturma (PDF hatasından bağımsız)
+            try:
+                st.session_state["html_rapor"] = html_report.build_html(
+                    M,
+                    temiz_df_tum,
+                    kriterler_df,
+                    katsayilar_df,
+                    formul,
+                    model_sonucu,
+                    kiyaslama_tablosu,
+                    ozet,
+                    rapor_figleri,
+                    logo_svg(),
+                    SURUM,
+                    gecerlilik_baslik=(M["ham_ozet_baslik"] if ham_mod else None),
+                )
+            except Exception as e_html:
+                st.session_state.pop("html_rapor", None)
+                st.warning(f"⚠️ HTML oluşturmada sorun: {str(e_html)[:150]}")
+
         except Exception as e:
-            st.session_state.pop("pdf_rapor", None)
-            st.session_state.pop("html_rapor", None)
             st.error(M["rapor_hata"].format(hata=e))
 
 if st.session_state.get("pdf_rapor") or st.session_state.get("html_rapor"):
